@@ -29,8 +29,11 @@ def MeanMovingSmoothing(x, windowSize):
         y[i] = x[i]
     for i in range((x.size - windowSize // 2), x.size):
         y[i] = x[i]
-    for i in range(windowSize // 2, x.size - windowSize // 2):
-        y[i] = x[i - windowSize // 2: i + windowSize // 2 + 1].mean()
+    summation = x[:windowSize].sum()
+    y[windowSize // 2] = summation / windowSize
+    for i in range(windowSize // 2 + 1, x.size - windowSize // 2):
+        summation = summation - x[i - windowSize // 2 - 1] + x[i + windowSize // 2]
+        y[i] = summation / windowSize
     return y
 
 
@@ -51,3 +54,4 @@ if __name__ == "__main__":
         tmpVal = butter_lowpass_filter(data[tmp].values, cutoff, fs, order)
         y[i] = MeanMovingSmoothing(tmpVal, 301)
     y.to_csv(targetname)
+    print(time.clock())
