@@ -4,3 +4,16 @@
 *.*~
 *.zip
 *.csv
+*.pdf
+*.synctex.gz
+*.log
+*.aux
+*.bbl
+*.blg
+*.bak
+*eps-converted*
+*.dvi
+*.ascii
+*.out
+*.sav
+*.dump
