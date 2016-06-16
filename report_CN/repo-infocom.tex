@@ -189,7 +189,7 @@ Wireless signals are usually unstable and sensitive to environmental changes, th
 collecting wireless signals and processing them is hence challenging.
 Recently proposed WiFi-based systems are based on analyzing the changes caused by human motion in the characteristics of the wireless signals, such as the received signal strength indicator (RSSI) or detailed channel state information (CSI). HOWEVER
 
-In this paper, we propose an end-to-end gesture recognition system and implement a demo using off-the-shelf network interface card (Intel 5300) and \emph{CSI Tools} ~\cite{halperin2011tool}. 
+In this paper, we propose an end-to-end gesture recognition system and implement a demo using off-the-shelf network interface card (Intel 5300) and \emph{CSI Tools} \cite{halperin2011tool}. 
 Instead of collecting data first and analyzing them later on and then reporting on the average accuracy of classification, we aim to provide a real-time interactive system which can be used in real scenarios. 
 The respond time of our system is as short as XXX. 
 In addition, we use machine learning techniques to support classification of different gestures and the accuracy of the classification can hence increase as the users provide more samples.
@@ -200,50 +200,63 @@ The rest of this paper is organized as follows.  The background is introduced in
 \section{Background} \label{section-background}
 
 \subsection{Channel State Information (CSI)}
-Modern WiFi devices that support IEEE 802.11n/ac standard typically consist of multiple transmit and multiple receive antennas and thus support MIMO. Each MIMO channel between each transmit-receive (TX-RX) antenna pair of a transmitter and receiver comprises of multiple subcarriers. These WiFi devices continuously monitor the state of the wireless channel to effectively perform transmit power allocations and rate adaptations for each individual MIMO stream such that the available capacity of the wireless channel is maximally utilized. These devices quantify the state of the channel in terms of CSI values. The CSI values essentially characterize the Channel Frequency Response (CFR) for each subcarrier between each transmit-receive (TX-RX) antenna pair.
+Modern WiFi devices that support IEEE 802.11n/ac standard typically consist of multiple transmit and multiple receive antennas and thus support MIMO. Each MIMO channel between each transmit-receive (TX-RX) antenna pair of a transmitter and receiver comprises of multiple subcarriers. These WiFi devices continuously monitor the state of the wireless channel to effectively perform transmit power allocations and rate adaptations for each individual MIMO stream such that the available capacity of the wireless channel is maximally utilized \cite{halperin2010802}. These devices quantify the state of the channel in terms of CSI values. The CSI values essentially characterize the Channel Frequency Response (CFR) for each subcarrier between each transmit-receive (TX-RX) antenna pair.
 Let $M_T$ denote the number of transmit antennas, $M_R$ denote the number of receive antennas and $S_c$ denote the number of OFDM subcarriers. Let $X_i$ and $Y_i$ represent the $M_T$ dimensional transmitted signal vector and $M_R$ dimensional received signal vector, respectively, for subcarrier i and let Ni represent an $M_R$ dimensional noise vector. An $M_R \times M_T$ MIMO system at any time instant can be represented by the following equation.
-% ~\cite
 \begin{equation}
 	Y_i = H_iX_i + N_i, i \in [1, S_c]
 \end{equation}
-In the equation above, the $M_R \times M_T$ dimensional channel matrix $H_i$ represents the Channel State Information (CSI) for the subcarrier $i$. Any two communicating WiFi devices estimate this channel matrix $H_i$ for every subcarrier by regularly transmitting a known preamble of OFDM symbols between each other. For each Tx-Rx antenna pair, we can attain CSI values for $S_c$ = 30 OFDM subcarriers of the 20 MHz WiFi Channel by using CSI Tools and Intel 5300 network interface card. This leads to 30 matrices with dimensions $M_R \times M_T$ per CSI sample.
-\section{Related Work}
+In the equation above, the $M_R \times M_T$ dimensional channel matrix $H_i$ represents the Channel State Information (CSI) for the subcarrier $i$. Any two communicating WiFi devices estimate this channel matrix $H_i$ for every subcarrier by regularly transmitting a known preamble of OFDM symbols between each other \cite{ali2015keystroke}. For each Tx-Rx antenna pair, we can attain CSI values for $S_c$ = 30 OFDM subcarriers of the 20 MHz WiFi Channel by using CSI Tools and Intel 5300 network interface card. This leads to 30 matrices with dimensions $M_R \times M_T$ per CSI sample.
+\subsection{Related Work}
 There are a myriad of work for device-free gesture recognition. Some are based on Received Signal Strength Indicator (RSSI), some on Channel State Information (CSI).
 
-~\cite{pu2013whole} claims itself to be the first to do gesture recognition using wireless signals. 
+\cite{pu2013whole} claims itself to be the first to do gesture recognition using wireless signals. 
 They presented a system named WiSee, which extracts minute Doppler shifts from wide-band OFDM transmissions to enable whole-home sensing and recognition of human gestures.
-There is another work \emph{Allsee} ~\cite{kellogg2014bringing} which leverages wireless signals furthermore and applies the method into RFID tags and power-harvesting sensors.
+There is another work \emph{Allsee} \cite{kellogg2014bringing} which leverages wireless signals furthermore and applies the method into RFID tags and power-harvesting sensors.
 
 Another category is RSSI-based gesture recognition, which leverages the signal strength changes caused by human motion.
 However, due to the low resolution of RSSI values provided by commercial devices, the performance of these kinds of methods is usually considered relatively low.
-For instance, the accuracy is 56\% over 7 different gestures in ~\cite{sigg2014telepathic}.
-Nevertheless, ~\cite{abdelnasser2015wigest} claims that they achieve 96\% when evaluating the system using a multi-media player application.
+For instance, the accuracy is 56\% over 7 different gestures in \cite{sigg2014telepathic}.
+Nevertheless, \cite{abdelnasser2015wigest} claims that they achieve 96\% when evaluating the system using a multi-media player application.
 they also claim that they only need standard WiFi device, unlike \emph{Wisee} which uses USRP in their experiment.
+
+
 \section{System Design} \label{section-design}
 \subsection{Overview}
 \subsection{Data Collection}
-
-
 \subsection{Data Processing}
-
-
 \subsection{Model Training}
 
+\section{Implementation} \label{section-implementation}
 
 \section{Evaluation} \label{section-evaluation}
 
 
-
 \section{discussion} \label{section-discussion}
 
-In this section, we discuss the advantages and disadvantages of current \emph{repo} design, which would provide an instruction about how \emph{repo} should be used and its current limitation.
+In this section, we discuss what we learned from this project, in which division of work and future work are also covered.
 
+\subsection{Division of Work}
+Yuning Mao is the team leader. He took great efforts to the research and survey of papers in which CSI is used. He installed the hardware and set up the environment of CSI tool in Ubuntu 12.04. He tried things first and assigned tasks to the team members after having a basic understanding. He modified the program in CSI tool which was originally used to save CSI into binary file into a program which was then used to do gesture recognition. He is also responsible for most experiments and batch files.
+
+Yuting Jia is in charge of the model, including feature selection, model selection, model training and so on. He also rewrote the C file which was originally called within \emph{matlab} in the CSI tool so that we could leverage the CSI directly.
+
+Zhenfeng Shi did the work of signal processing. He tried multiple methods of signal filtering and implemented them in both \emph{matlab} and \emph{python}.
+
+\subsection{Limitations and Future Work}
+Currently our system depends on the environment heavily and is sensitive to noise. In addition, we have to train different parameters of model in different scenarios. We think that there are a couple of reasons accounting for that. 
+First, we couldn't find a quite and stable environment for data collection. The training data are hence with great noise, which is apparently undesirable. 
+Second, the samples we collected are far from enough compared to the researchers who have been working on this field for years. For instance, in \cite{ali2015keystroke}, they obtained $10 persons \times 30samples/person/classes \times 37classes = 11100$ samples. We only have around one percent of them in each experiment. After all we had to collect data after establishing the whole system, and there was only one week or so and the exams were around the corner...
+Future work directions are as follows. First, We need to collect more training data in a relatively stable environment. Second, we should try more advanced filtering methods via which we can hopefully eliminate random noise. Furthermore, we can try different models and different applications such as typing recognition and voice recognition, which are more challenging and exciting in the meantime!
 
 \section{conclusion} \label{section-conclusion}
-
+In this project, we did various experiments by leveraging channel state information (CSI) of WiFi signals using \emph{CSI Tool} and Intel 5300 NIC.
+We install the Intel 5300 NIC into a lenovo R400 laptop and use external antennas to receive signals better.
+We process the CSI and use SVM to train models to classify four different gestures and acquire an average accuracy of ??\%.
+In addition, we use CSI to localize tables in the lab and achieve an average accuracy of ??\%.
+It's true that there are still flaws and limits in our system. But We indeed started from scratch without instructions from the experienced and did plenty of experiments.
 
 \section*{Acknowledgment}
-
+We want to say thanks to Zhenyu Song, who let us know the CSI Tool and provide us with Intel 5300 NIC and laptop Lenovo R400. We also thank Prof.Jia for the WiFi router and instruction.
 
 \bibliographystyle{IEEEtran}
 \bibliography{IEEEabrv,repo}
