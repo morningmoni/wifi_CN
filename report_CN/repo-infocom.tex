@@ -151,7 +151,7 @@ XXX@sjtu.edu.cn}
 
 
 \begin{abstract}
-Wireless signals (e.g., WiFi) are almost everywhere nowadays. However, the research of wireless signals using channel state information (CS) has just started. In this project, we try several applications by leveraging the channel state information (CSI). We implement an end-to-end system which can be used to control electronic devices (e.g., laptop) by gesture recognition. We do experiments of indoor localization  using CSI. We also try using information of wireless signals to detect indoor human activities. Our system leverages the WiFi signals using off-the-shelf network interface card (Intel 5300) and achieves an average accuracy of XXX \% for a classification of 4? typical gestures.   
+Wireless signals (e.g., WiFi) are almost everywhere nowadays. However, the research of wireless signals using channel state information (CSI) has just started. In this project, we try several applications by leveraging the channel state information (CSI). We implement an end-to-end system which can be used to control electronic devices (e.g., laptop) by gesture recognition. We do experiments of indoor localization  using CSI. We also try using information of wireless signals to detect indoor human activities. Our system leverages the WiFi signals using off-the-shelf network interface card (Intel 5300) and achieves an average accuracy of XXX \% for a classification of 4? typical gestures.   
 
 \end{abstract}
 % IEEEtran.cls defaults to using nonbold math in the Abstract.
@@ -224,17 +224,19 @@ they also claim that they only need standard WiFi device, unlike \emph{Wisee} wh
 \section{System Design} \label{section-design}
 \subsection{Overview}
 \subsection{Data Collection}
-\subsection{Data Processing}
-We use a IBM Laptop equipped with an Intel 5300 Wi-Fi card to transmit and receive Wi-Fi packets. We measured the CSI of received packets using the Intel CSI Toolkit at a sampling rate of 1000 samples / s. For each segment of data, the CSI is represented in 30 channels, as a figure below:
+We use a Lenovo R400 laptop equipped with an Intel 5300 network card as the receive side of wireless signals. We measure the CSI of received packets using the CSI Tool at a sampling rate of 1000 HZ. For each segment of data, the CSI is represented in 30 channels, as a figure below:
 \begin{figure}[H]
 \includegraphics[width=3in]{Original.png}
-\caption{Raw sigal in 30 channel of CSI}
+\caption{Raw signal in 30 channel of CSI}
 \end{figure}
-From the above figure, we can see that the trend of the signal is obscure. Therefore, we need to preprocess the signal before we can do feature selection and model training in order to get a signal with high SNR.
-\subsubsection{Low-pass Filtering}
-Our raw data is sampled at a sampling rate of 1000 samples / s, which is relatively high since we note that the duration of typical human gestures is greater than hundreds of milliseconds. Therefore, we run the Wi-Fi channel samples through a low-pass filter to smooth out the fast varying noise while keeping the slower varying gesture information intact.
+From the above figure, we can see that the trend of the signal is obscure. Therefore, we need to preprocess the signals to attain signals with high SNR before we can do feature selection and model training.
 
-In our design, we use the low-pass filter with the following parameters:
+\subsection{Data Processing}
+
+\subsubsection{Low-pass Filtering}
+Our raw data is sampled at a sampling rate of 1000 HZ, which is relatively high since the duration of typical human gestures is greater than hundreds of milliseconds. Therefore, we run CSI in the wireless signals through a low-pass filter to smooth out the fast varying noise while keeping the variations caused by gestures intact.
+
+In our design, we use a low-pass filter with the following parameters:
 \begin{table}[H]
 \centering
 \begin{tabular}{|c|c|}
@@ -252,25 +254,25 @@ Passband Ripple & 1 dB \\
 \hline
 Stopband Attenuation & 60 dB \\
 \hline
-\hline
 \end{tabular}
 \caption{Parameters for low-pass filter}
 \end{table}
+
 The frequency response is shown as follows:
 \begin{figure}[H]
 \centering
 \includegraphics[width=3in]{FR.png}
 \caption{Frequency Response}
 \end{figure}
-The result of passing raw sigal to this filter is as follows:
+The result of passing raw signals to this filter is as follows:
 \begin{figure}[H]
 \centering
 \includegraphics[width=3in]{LPF.png}
 \caption{Result of low-pass filter}
 \end{figure}
-Notably, we have implemented such low-pass filter both in Matlab and Python to meet our requirement.
+Notably, we have implemented such low-pass filter in both Matlab and Python to meet our requirement.
 \subsubsection{Moving Average Filtering}
-What's more, Minor changes in various environmental factors such as user location, distance between routers and device, and objects in vecinity, can have an impact on the absolute Wi-Fi channel amplitude. The amplitude changes we are interested in for gesture recognition, however, are independent of these absolute valuse. To extract these changes and remove any bias from the absolute values, we filter the samples by calculating a windowed average of the channel samples (averaged over 300 ms, which is 300 points based on our sampling rate) from the low-pass filtered samples from the previous step. In other word, we perform noise reduction on the signal.
+Another serious problem is that minor changes in various environmental factors such as user location, distance between router and receiver, and objects in vicinity, can have an impact on the absolute WiFi channel amplitude. The amplitude changes we are interested in for gesture recognition, however, are independent of these absolute values. To extract these changes and remove bias from the absolute values, we filter the samples by calculating a windowed average of the channel samples (averaged over 300 ms, which is 300 points based on our sampling rate) from the low-pass filtered samples in the previous step.
 
 The following figure shows the result of the moving average filter.
 \begin{figure}[H]
@@ -291,7 +293,7 @@ In this section, we illustrate some figures of the result of preprocessing proce
 \includegraphics[width=3in]{PUSH4.png}
 \caption{Signal of PUSH}
 \end{figure}
-The above 4 figures came from 4 independent identical gesture ‘PUSH’. Clearly, we can see that these signals share a very high similarity in corresponding channels.
+The above 4 figures come from 4 independent identical gestures `PUSH'. Clearly, we can see that these signals share a very high similarity in corresponding channels.
 \subsection{Model Training}
 
 \section{Implementation} \label{section-implementation}
