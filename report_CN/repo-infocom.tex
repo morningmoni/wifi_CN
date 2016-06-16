@@ -66,6 +66,7 @@
 \documentclass[conference]{IEEEtran}
 
 \usepackage{url, fancyvrb, framed, multirow, tabularx, graphicx, epstopdf, enumerate, array, cite, algorithmic, fixltx2e}
+\usepackage{float}
 
 \usepackage[cmex10]{amsmath}
 %\usepackage{breqn}
@@ -224,6 +225,73 @@ they also claim that they only need standard WiFi device, unlike \emph{Wisee} wh
 \subsection{Overview}
 \subsection{Data Collection}
 \subsection{Data Processing}
+We use a IBM Laptop equipped with an Intel 5300 Wi-Fi card to transmit and receive Wi-Fi packets. We measured the CSI of received packets using the Intel CSI Toolkit at a sampling rate of 1000 samples / s. For each segment of data, the CSI is represented in 30 channels, as a figure below:
+\begin{figure}[H]
+\includegraphics[width=3in]{Original.png}
+\caption{Raw sigal in 30 channel of CSI}
+\end{figure}
+From the above figure, we can see that the trend of the signal is obscure. Therefore, we need to preprocess the signal before we can do feature selection and model training in order to get a signal with high SNR.
+\subsubsection{Low-pass Filtering}
+Our raw data is sampled at a sampling rate of 1000 samples / s, which is relatively high since we note that the duration of typical human gestures is greater than hundreds of milliseconds. Therefore, we run the Wi-Fi channel samples through a low-pass filter to smooth out the fast varying noise while keeping the slower varying gesture information intact.
+
+In our design, we use the low-pass filter with the following parameters:
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|c|}
+\hline
+Parameter & value \\
+\hline
+\hline
+Sampling Frequency & 1000 Hz \\
+\hline
+Passband Frequency & 80 Hz \\
+\hline
+Stopband Frequency & 100 Hz \\
+\hline
+Passband Ripple & 1 dB \\
+\hline
+Stopband Attenuation & 60 dB \\
+\hline
+\hline
+\end{tabular}
+\caption{Parameters for low-pass filter}
+\end{table}
+The frequency response is shown as follows:
+\begin{figure}[H]
+\centering
+\includegraphics[width=3in]{FR.png}
+\caption{Frequency Response}
+\end{figure}
+The result of passing raw sigal to this filter is as follows:
+\begin{figure}[H]
+\centering
+\includegraphics[width=3in]{LPF.png}
+\caption{Result of low-pass filter}
+\end{figure}
+Notably, we have implemented such low-pass filter both in Matlab and Python to meet our requirement.
+\subsubsection{Moving Average Filtering}
+What's more, Minor changes in various environmental factors such as user location, distance between routers and device, and objects in vecinity, can have an impact on the absolute Wi-Fi channel amplitude. The amplitude changes we are interested in for gesture recognition, however, are independent of these absolute valuse. To extract these changes and remove any bias from the absolute values, we filter the samples by calculating a windowed average of the channel samples (averaged over 300 ms, which is 300 points based on our sampling rate) from the low-pass filtered samples from the previous step. In other word, we perform noise reduction on the signal.
+
+The following figure shows the result of the moving average filter.
+\begin{figure}[H]
+\centering
+\includegraphics[width=3in]{MAF.png}
+\caption{Result of moving-average filter}
+\end{figure}
+From the above figure, we can clearly see the trend of the signal comparing to the raw data.
+
+Similar to the low-pass filter, we also implement two moving average filter on Matlab and Python.
+\subsubsection{Some Example Result of Preprocessing}
+In this section, we illustrate some figures of the result of preprocessing procedure described as above.
+\begin{figure}[H]
+\centering
+\includegraphics[width=3in]{PUSH1.png}
+\includegraphics[width=3in]{PUSH2.png}
+\includegraphics[width=3in]{PUSH3.png}
+\includegraphics[width=3in]{PUSH4.png}
+\caption{Signal of PUSH}
+\end{figure}
+The above 4 figures came from 4 independent identical gesture ‘PUSH’. Clearly, we can see that these signals share a very high similarity in corresponding channels.
 \subsection{Model Training}
 
 \section{Implementation} \label{section-implementation}
