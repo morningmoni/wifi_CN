@@ -69,6 +69,7 @@
 \usepackage{float}
 
 \usepackage[cmex10]{amsmath}
+\usepackage{listings}
 %\usepackage{breqn}
 
 % correct bad hyphenation here
@@ -223,6 +224,7 @@ they also claim that they only need standard WiFi device, unlike \emph{Wisee} wh
 
 \section{System Design} \label{section-design}
 \subsection{Overview}
+In this section, we describe the whole process and flow of work. It consists of data collection, data processing and model training. For data collection, we introduce the hardware and software tools and our work above them. For data processing, we discuss signal filtering methods we implemented. For model training, we illustrate how we select the features and model.
 \subsection{Data Collection}
 We use a Lenovo R400 laptop equipped with an Intel 5300 network card as the receive side of wireless signals. We measure the CSI of received packets using the CSI Tool at a sampling rate of 1000 HZ. For each segment of data, the CSI is represented in 30 channels, as a figure below:
 \begin{figure}[H]
@@ -231,8 +233,59 @@ We use a Lenovo R400 laptop equipped with an Intel 5300 network card as the rece
 \end{figure}
 From the above figure, we can see that the trend of the signal is obscure. Therefore, we need to preprocess the signals to attain signals with high SNR before we can do feature selection and model training.
 
-\subsection{Data Processing}
+The data format we can acquire is as follows \cite{halperin2011tool}:
+\begin{enumerate}
+\item \textbf{timestamp\_low} is the low 32 bits of the NIC's 1 MHz clock. It wraps about every 4300 seconds, or 72 minutes. This field was not yet recorded in the sample trace, so all values are arbitrary and always equal 4.
 
+\item \textbf{bfee\_count} is simply a count of the total number of beamforming measurements that have been recorded by the driver and sent to userspace. The netlink channel between the kernel and userspace is lossy, so these can be used to detect measurements that were dropped in this pipe.
+
+\item \textbf{Nrx} represents the number of antennas used to receive the packet by this NIC, and Ntx represents the number of space/time streams transmitted. In this case, the sender sent a single-stream packet and the receiver used all 3 antennas to receive it.
+
+\item \textbf{rssi\_a, rssi\_b, and rssi\_c} correspond to RSSI measured by the receiving NIC at the input to each antenna port. This measurement is made during the packet preamble. This value is in dB relative to an internal reference; to get the received signal strength in dBm we must combine it with the Automatic Gain Control (AGC) setting (agc) in dB and also subtract off a magic constant. This process is explained below.
+
+\item \textbf{perm} tells us how the NIC permuted the signals from the 3 receive antennas into the 3 RF chains that process the measurements. The sample value of [3 2 1] implies that Antenna C was sent to RF Chain A, Antenna B to Chain B, and Antenna A to Chain C. This operation is performed by an antenna selection module in the NIC and generally corresponds to ordering the antennas in decreasing order of RSSI.
+
+\item \textbf{rate} is the rate at which the packet was sent, in the same format as the rate\_n\_flags defined above. Note that the antenna bits are omitted, as there is no way for the receiver to know which transmit antennas were used.
+
+\item \textbf{csi} is the CSI itself, normalized to an internal reference. It is a $N_{tx} \times N_{rx} \times 30$ 3-D matrix where the third dimension is across 30 subcarriers in the OFDM channel. For a 20 MHz-wide channel, these correspond to about half the OFDM subcarriers, and for a 40 MHz-wide channel, this is about one in every 4 subcarriers. Which subcarriers were measured is defined by the IEEE 802.11n-2009 standard.
+\end{enumerate}
+
+The CSI Tool provides supplementary programs written in Matlab to preprocess the signals.
+
+It uses the following command to store the CSI into a binary file.
+{ 
+\scriptsize
+\begin{lstlisting}[language=SH]
+sudo linux-80211n-csitool-supplementary/netlink/log_to_file csi.dat
+\end{lstlisting}
+}
+
+Then it uses Matlab to read the binary file and does the preprocessing.
+{ 
+\scriptsize
+\begin{lstlisting}[language=MATLAB]
+csi_trace = read_bf_file('sample_data/log.all_csi.6.7.6');
+plot(db(abs(squeeze(csi).')))
+legend('RX Antenna A', 'RX Antenna B', 'RX Antenna C', 
+	'Location', 'SouthEast' );
+xlabel('Subcarrier index');
+ylabel('SNR [dB]');
+\end{lstlisting}
+}
+
+Which can display the SNR of three different antennas on subcarrier level.
+\begin{figure}[H]
+\centering
+\includegraphics[width=3in]{SNR.png}
+\caption{The SNR of three antennas}
+\end{figure}
+
+To adjust the process above to our own purpose, we modified \textbf{log\_to\_file.c} to allow it to stop logging at certain time. We also used C to rewrite the functions which were originally written in Matlab. MORE DETAIL HERE @JYT.
+
+
+\subsection{Data Processing}
+We use the amplitude of CSI from 30 subcarriers as the raw input.
+Then we do low-pass filtering and moving average filtering in turn.
 \subsubsection{Low-pass Filtering}
 Our raw data is sampled at a sampling rate of 1000 HZ, which is relatively high since the duration of typical human gestures is greater than hundreds of milliseconds. Therefore, we run CSI in the wireless signals through a low-pass filter to smooth out the fast varying noise while keeping the variations caused by gestures intact.
 
