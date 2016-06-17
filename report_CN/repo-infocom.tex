@@ -81,7 +81,7 @@
 % paper title
 % can use linebreaks \\ within to get better formatting as desired
 % \title{A Real-time Gesture Recognition System Using Wireless Signals}
-\title{Multiple Applications of Wireless Signals Using Channel State Information (CSI)}
+\title{Several Applications of Wireless Signals Using Channel State Information (CSI)}
 
 % author names and affiliations
 % use a multiple column layout for up to three different
@@ -127,20 +127,20 @@
 \author{
 \IEEEauthorblockN{Yuning Mao}
 \IEEEauthorblockA{
+IEEE Honored Class\\
 Shanghai Jiao Tong University\\
-Dongchuan Road 800, Shanghai, China\\
 morningmoni@sjtu.edu.cn}
 \and
 \IEEEauthorblockN{Yuting Jia}
 \IEEEauthorblockA{
+IEEE Honored Class\\
 Shanghai Jiao Tong University\\
-Dongchuan Road 800, Shanghai, China\\
 XXX@sjtu.edu.cn}
 \and
 \IEEEauthorblockN{Zhenfeng Shi}
 \IEEEauthorblockA{
+IEEE Honored Class\\
 Shanghai Jiao Tong University\\
-Dongchuan Road 800, Shanghai, China\\
 XXX@sjtu.edu.cn}
 }
 
@@ -153,7 +153,7 @@ XXX@sjtu.edu.cn}
 
 
 \begin{abstract}
-Wireless signals (e.g., WiFi) are almost everywhere nowadays. However, the research of wireless signals using channel state information (CSI) has just started. In this project, we try several applications by leveraging the channel state information (CSI). We implement an end-to-end system which can be used to control electronic devices (e.g., laptop) by gesture recognition. We do experiments of indoor localization  using CSI. We also try using information of wireless signals to detect indoor human activities. Our system leverages the WiFi signals using off-the-shelf network interface card (Intel 5300) and achieves an average accuracy of XXX \% for a classification of 4? typical gestures.   
+Wireless signals (e.g., WiFi) are almost everywhere nowadays. However, the research of wireless signals using channel state information (CSI) has just started. In this project, we try several applications by leveraging the channel state information (CSI). We implement an end-to-end system which can be used to control electronic devices (e.g., laptop) by gesture recognition. We also do experiments of indoor localization using CSI.  Our system leverages the WiFi signals using off-the-shelf network interface card (Intel 5300). It achieves an average accuracy of XXX \% for a classification of 4? typical gestures and XXX\% for localization of 5 different tables in the lab.
 
 \end{abstract}
 % IEEEtran.cls defaults to using nonbold math in the Abstract.
@@ -190,13 +190,15 @@ Researchers also developed ways to move the sensors onto the body so as to bolst
 Nowadays, wireless signals are almost everywhere. They are used for communication, remote control and so on. However, the research of doing gesture recognition by leveraging wireless signals just started in 2013. It partially results from the fact that there are plenty of challenges when it comes to the use of wireless signals. 
 Wireless signals are usually unstable and sensitive to environmental changes, there could be issues because of medium contention, multipath interference, noises caused by other objects and so on.
 collecting wireless signals and processing them is hence challenging.
-Recently proposed WiFi-based systems are based on analyzing the changes caused by human motion in the characteristics of the wireless signals, such as the received signal strength indicator (RSSI) or detailed channel state information (CSI). HOWEVER
-
+Recently proposed WiFi-based systems are based on analyzing the changes caused by human motion in the characteristics of the wireless signals, such as the received signal strength indicator (RSSI) or detailed channel state information (CSI).
+We consider this a new direction of research and hence did some experiments by leveraging the CSI.
+The CSI is helpful for many purposes, such as gesture recognition, indoor localization, keystroke recognition, human activity detection and so on.
 In this paper, we propose an end-to-end gesture recognition system and implement a demo using off-the-shelf network interface card (Intel 5300) and \emph{CSI Tools} \cite{halperin2011tool}. 
-Instead of collecting data first and analyzing them later on and then reporting on the average accuracy of classification, we aim to provide a real-time interactive system which can be used in real scenarios. 
-The respond time of our system is as short as XXX. 
-In addition, we use machine learning techniques to support classification of different gestures and the accuracy of the classification can hence increase as the users provide more samples.
+
+Different from previous methods, we use machine learning techniques to support classification of different gestures and the accuracy of the classification can hence increase as the users provide more samples.
 We also support user-defined gestures. All the users need is to perform a gesture several times and then the system can store the pattern and recognize the gesture afterwards.
+In addition, We did experiment of indoor localization, or rather, classifying five tables in the lab.
+The results show that...
 
 The rest of this paper is organized as follows.  The background is introduced in Section \ref{section-background}. The system design is illustrated in Section \ref{section-design}. Section \ref{section-evaluation} demonstrates the evaluation of the system by multiple experiments. The discussion concerning limitations, division of work, and future work is presented in Section \ref{section-discussion}. Section \ref{section-conclusion} concludes the paper.
 
@@ -326,7 +328,7 @@ The result of passing raw signals to this filter is as follows:
 \end{figure}
 
 Notably, we have implemented such low-pass filter both in Matlab and Python to meet our requirement.
-In Matlab, we directly use a build-in Butterworth filter but adjust the parameters to what we want.
+In Matlab, we directly use a build-in Butterworth filter but adjust the parameters to the needed ones.
 \begin{algorithm}
 	\caption{Low-pass filter implement in MATLAB}
 	\begin{algorithmic}
@@ -337,9 +339,9 @@ In Matlab, we directly use a build-in Butterworth filter but adjust the paramete
 	\STATE end
 	\end{algorithmic}
 \end{algorithm}
-Matlab provides a more powerful and convenient method based on \emph{fdesign} to design filters comparing to the traditional way like \emph{fdatool}. As is illustrated above, only 3 lines of code can accomplish filter implementation.
+Matlab provides a more powerful and convenient method based on \emph{fdesign} to design filters, compared to the traditional way like \emph{fdatool}. As is illustrated above, only 3 lines of code can accomplish filter implementation.
 
-In Python, the implementation of such low-pass filter is slightly harder than it in Matlab. We use a open-source package for mathematics, science and engineering called \emph{Scipy}. In this package, it includes a toolbox called \emph{Scipy.signal} which contains some filtering functions, a limited set of filter design tools and a few B-spline interpolation algorithms for one- and two-dimensional data.
+However, Matlab is slow to start and run. And since the model we use is written in Python, we turn to the implementation of python version. In Python, the implementation of such a low-pass filter is slightly harder than it in Matlab. We use an open-source package for mathematics, science and engineering called \emph{Scipy}. In this package, it includes a toolbox called \emph{Scipy.signal} which contains some filtering functions, a limited set of filter design tools and a few B-spline interpolation algorithms for one- and two-dimensional data.
 
 In detail, the filter is implemented as a direct II transposed structure as follows:
 $$a[0]*y[n] = b[0]*x[n] + b[1]*x[n-1] + ... + b[nb]*x[n-nb]$$
@@ -354,7 +356,7 @@ z[n-2,m] = b[n-1]*x[m] - a[n-1]*y[m]\\
 \end{algorithm}
 where m is the output sample number and $n=max(len(a), len(b))$ is the model order.
 
-The ratianal transfer function describing this filter in the z-transform domain is:
+The rational transformation function describing this filter in the z-transform domain is:
 $$Y(z) = \frac{b[0]b[1]z^{-1}+...+b[nb]z^{-nb}}{a[0]+a[1]z^{-1}+...+a[na]z^{-na}}X(z)$$
 
 The pseudocode is as follows:
@@ -388,7 +390,7 @@ From the above figure, we can clearly see the trend of the signal comparing to t
 
 Similar to the low-pass filter, we also implement two moving average filter on Matlab and Python.
 
-In MATLAB, we use a build-in filter which filters the input data, x, using a rational transfer function defined by the numerator and denominator coefficients b and a, respectively.
+In MATLAB, we use a build-in filter which filters the input data, x, using a rational transformation function defined by the numerator and denominator coefficients b and a, respectively.
 
 Here we design
 \begin{algorithm}[H]
@@ -408,7 +410,7 @@ The pseudocode is as follows:
 	\end{algorithmic}
 \end{algorithm}
 
-In Python, no such build-in function can be call to fulfil the filtering. Therefore, we implement it by ourselves, which has a complexity of $O(n)$.
+In Python, no such build-in function can be call to fulfill the filtering. Therefore, we implement it by ourselves, which has a complexity of $O(n)$.
 
 The pseudocode is as follows:
 \begin{algorithm}
