@@ -197,7 +197,7 @@ The respond time of our system is as short as XXX.
 In addition, we use machine learning techniques to support classification of different gestures and the accuracy of the classification can hence increase as the users provide more samples.
 We also support user-defined gestures. All the users need is to perform a gesture several times and then the system can store the pattern and recognize the gesture afterwards.
 
-The rest of this paper is organized as follows.  The background is introduced in Section \ref{section-background}. The system design is illustrated in Section \ref{section-design}. Section \ref{section-implementation} and Section \ref{section-evaluation} demonstrates the example implementation and evaluation, respectively. The discussion of benefits and tradeoffs are presented in Section \ref{section-discussion}. Section \ref{section-conclusion} concludes the paper.
+The rest of this paper is organized as follows.  The background is introduced in Section \ref{section-background}. The system design is illustrated in Section \ref{section-design}. Section \ref{section-evaluation} demonstrates the evaluation of the system by multiple experiments. The discussion concerning limitations, division of work, and future work is presented in Section \ref{section-discussion}. Section \ref{section-conclusion} concludes the paper.
 
 \section{Background} \label{section-background}
 
@@ -280,7 +280,7 @@ Which can display the SNR of three different antennas on subcarrier level.
 \caption{The SNR of three antennas}
 \end{figure}
 
-To adjust the process above to our own purpose, we modified \textbf{log\_to\_file.c} to allow it to stop logging at certain time. We also used C to rewrite the functions which were originally written in Matlab. MORE DETAIL HERE @JYT.
+To adjust the process above to our own purpose, we modified \textbf{log\_to\_file.c} to allow it to stop logging at certain time. We also used C to rewrite the functions in \textbf{read\_bf\_file.m} which were originally written in Matlab. MORE DETAIL HERE @JYT.
 
 
 \subsection{Data Processing}
@@ -349,7 +349,6 @@ In this section, we illustrate some figures of the result of preprocessing proce
 The above 4 figures come from 4 independent identical gestures `PUSH'. Clearly, we can see that these signals share a very high similarity in corresponding channels.
 \subsection{Model Training}
 
-\section{Implementation} \label{section-implementation}
 
 \section{Evaluation} \label{section-evaluation}
 
@@ -376,7 +375,7 @@ In this project, we did various experiments by leveraging channel state informat
 We install the Intel 5300 NIC into a lenovo R400 laptop and use external antennas to receive signals better.
 We process the CSI and use SVM to train models to classify four different gestures and acquire an average accuracy of ??\%.
 In addition, we use CSI to localize tables in the lab and achieve an average accuracy of ??\%.
-It's true that there are still flaws and limits in our system. But We indeed started from scratch without instructions from the experienced and did plenty of experiments.
+It's true that there are still flaws and limits in our system. But We indeed started from scratch without instructions from the experienced and did plenty of experiments. It's pretty cool to try and learn new stuff as awesome as this from the very beginning. We learned a lot from it.
 
 \section*{Acknowledgment}
 We want to say thanks to Zhenyu Song, who let us know the CSI Tool and provide us with Intel 5300 NIC and laptop Lenovo R400. We also thank Prof.Jia for the WiFi router and instruction.
