@@ -70,6 +70,7 @@
 
 \usepackage[cmex10]{amsmath}
 \usepackage{algorithm}
+\usepackage{listings}
 %\usepackage{breqn}
 
 % correct bad hyphenation here
@@ -152,7 +153,7 @@ XXX@sjtu.edu.cn}
 
 
 \begin{abstract}
-Wireless signals (e.g., WiFi) are almost everywhere nowadays. However, the research of wireless signals using channel state information (CS) has just started. In this project, we try several applications by leveraging the channel state information (CSI). We implement an end-to-end system which can be used to control electronic devices (e.g., laptop) by gesture recognition. We do experiments of indoor localization  using CSI. We also try using information of wireless signals to detect indoor human activities. Our system leverages the WiFi signals using off-the-shelf network interface card (Intel 5300) and achieves an average accuracy of XXX \% for a classification of 4? typical gestures.   
+Wireless signals (e.g., WiFi) are almost everywhere nowadays. However, the research of wireless signals using channel state information (CSI) has just started. In this project, we try several applications by leveraging the channel state information (CSI). We implement an end-to-end system which can be used to control electronic devices (e.g., laptop) by gesture recognition. We do experiments of indoor localization  using CSI. We also try using information of wireless signals to detect indoor human activities. Our system leverages the WiFi signals using off-the-shelf network interface card (Intel 5300) and achieves an average accuracy of XXX \% for a classification of 4? typical gestures.   
 
 \end{abstract}
 % IEEEtran.cls defaults to using nonbold math in the Abstract.
@@ -197,7 +198,7 @@ The respond time of our system is as short as XXX.
 In addition, we use machine learning techniques to support classification of different gestures and the accuracy of the classification can hence increase as the users provide more samples.
 We also support user-defined gestures. All the users need is to perform a gesture several times and then the system can store the pattern and recognize the gesture afterwards.
 
-The rest of this paper is organized as follows.  The background is introduced in Section \ref{section-background}. The system design is illustrated in Section \ref{section-design}. Section \ref{section-implementation} and Section \ref{section-evaluation} demonstrates the example implementation and evaluation, respectively. The discussion of benefits and tradeoffs are presented in Section \ref{section-discussion}. Section \ref{section-conclusion} concludes the paper.
+The rest of this paper is organized as follows.  The background is introduced in Section \ref{section-background}. The system design is illustrated in Section \ref{section-design}. Section \ref{section-evaluation} demonstrates the evaluation of the system by multiple experiments. The discussion concerning limitations, division of work, and future work is presented in Section \ref{section-discussion}. Section \ref{section-conclusion} concludes the paper.
 
 \section{Background} \label{section-background}
 
@@ -224,18 +225,72 @@ they also claim that they only need standard WiFi device, unlike \emph{Wisee} wh
 
 \section{System Design} \label{section-design}
 \subsection{Overview}
+In this section, we describe the whole process and flow of work. It consists of data collection, data processing and model training. For data collection, we introduce the hardware and software tools and our work above them. For data processing, we discuss signal filtering methods we implemented. For model training, we illustrate how we select the features and model.
 \subsection{Data Collection}
-\subsection{Data Processing}
-We use a IBM Laptop equipped with an Intel 5300 Wi-Fi card to transmit and receive Wi-Fi packets. We measured the CSI of received packets using the Intel CSI Toolkit at a sampling rate of 1000 samples / s. For each segment of data, the CSI is represented in 30 channels, as a figure below:
+We use a Lenovo R400 laptop equipped with an Intel 5300 network card as the receive side of wireless signals. We measure the CSI of received packets using the CSI Tool at a sampling rate of 1000 HZ. For each segment of data, the CSI is represented in 30 channels, as a figure below:
 \begin{figure}[H]
 \includegraphics[width=3in]{Original.png}
-\caption{Raw sigal in 30 channel of CSI}
+\caption{Raw signal in 30 channel of CSI}
 \end{figure}
-From the above figure, we can see that the trend of the signal is obscure. Therefore, we need to preprocess the signal before we can do feature selection and model training in order to get a signal with high SNR.
-\subsubsection{Low-pass Filtering}
-Our raw data is sampled at a sampling rate of 1000 samples / s, which is relatively high since we note that the duration of typical human gestures is greater than hundreds of milliseconds. Therefore, we run the Wi-Fi channel samples through a low-pass filter to smooth out the fast varying noise while keeping the slower varying gesture information intact.
+From the above figure, we can see that the trend of the signal is obscure. Therefore, we need to preprocess the signals to attain signals with high SNR before we can do feature selection and model training.
 
-In our design, we use the low-pass filter with the following parameters:
+The data format we can acquire is as follows \cite{halperin2011tool}:
+\begin{enumerate}
+\item \textbf{timestamp\_low} is the low 32 bits of the NIC's 1 MHz clock. It wraps about every 4300 seconds, or 72 minutes. This field was not yet recorded in the sample trace, so all values are arbitrary and always equal 4.
+
+\item \textbf{bfee\_count} is simply a count of the total number of beamforming measurements that have been recorded by the driver and sent to userspace. The netlink channel between the kernel and userspace is lossy, so these can be used to detect measurements that were dropped in this pipe.
+
+\item \textbf{Nrx} represents the number of antennas used to receive the packet by this NIC, and Ntx represents the number of space/time streams transmitted. In this case, the sender sent a single-stream packet and the receiver used all 3 antennas to receive it.
+
+\item \textbf{rssi\_a, rssi\_b, and rssi\_c} correspond to RSSI measured by the receiving NIC at the input to each antenna port. This measurement is made during the packet preamble. This value is in dB relative to an internal reference; to get the received signal strength in dBm we must combine it with the Automatic Gain Control (AGC) setting (agc) in dB and also subtract off a magic constant. This process is explained below.
+
+\item \textbf{perm} tells us how the NIC permuted the signals from the 3 receive antennas into the 3 RF chains that process the measurements. The sample value of [3 2 1] implies that Antenna C was sent to RF Chain A, Antenna B to Chain B, and Antenna A to Chain C. This operation is performed by an antenna selection module in the NIC and generally corresponds to ordering the antennas in decreasing order of RSSI.
+
+\item \textbf{rate} is the rate at which the packet was sent, in the same format as the rate\_n\_flags defined above. Note that the antenna bits are omitted, as there is no way for the receiver to know which transmit antennas were used.
+
+\item \textbf{csi} is the CSI itself, normalized to an internal reference. It is a $N_{tx} \times N_{rx} \times 30$ 3-D matrix where the third dimension is across 30 subcarriers in the OFDM channel. For a 20 MHz-wide channel, these correspond to about half the OFDM subcarriers, and for a 40 MHz-wide channel, this is about one in every 4 subcarriers. Which subcarriers were measured is defined by the IEEE 802.11n-2009 standard.
+\end{enumerate}
+
+The CSI Tool provides supplementary programs written in Matlab to preprocess the signals.
+
+It uses the following command to store the CSI into a binary file.
+{ 
+\scriptsize
+\begin{lstlisting}[language=SH]
+sudo linux-80211n-csitool-supplementary/netlink/log_to_file csi.dat
+\end{lstlisting}
+}
+
+Then it uses Matlab to read the binary file and does the preprocessing.
+{ 
+\scriptsize
+\begin{lstlisting}[language=MATLAB]
+csi_trace = read_bf_file('sample_data/log.all_csi.6.7.6');
+plot(db(abs(squeeze(csi).')))
+legend('RX Antenna A', 'RX Antenna B', 'RX Antenna C', 
+	'Location', 'SouthEast' );
+xlabel('Subcarrier index');
+ylabel('SNR [dB]');
+\end{lstlisting}
+}
+
+Which can display the SNR of three different antennas on subcarrier level.
+\begin{figure}[H]
+\centering
+\includegraphics[width=3in]{SNR.png}
+\caption{The SNR of three antennas}
+\end{figure}
+
+To adjust the process above to our own purpose, we modified \textbf{log\_to\_file.c} to allow it to stop logging at certain time. We also used C to rewrite the functions in \textbf{read\_bf\_file.m} which were originally written in Matlab. MORE DETAIL HERE @JYT.
+
+
+\subsection{Data Processing}
+We use the amplitude of CSI from 30 subcarriers as the raw input.
+Then we do low-pass filtering and moving average filtering in turn.
+\subsubsection{Low-pass Filtering}
+Our raw data is sampled at a sampling rate of 1000 HZ, which is relatively high since the duration of typical human gestures is greater than hundreds of milliseconds. Therefore, we run CSI in the wireless signals through a low-pass filter to smooth out the fast varying noise while keeping the variations caused by gestures intact.
+
+In our design, we use a low-pass filter with the following parameters:
 \begin{table}[H]
 \centering
 \begin{tabular}{|c|c|}
@@ -253,22 +308,23 @@ Passband Ripple & 1 dB \\
 \hline
 Stopband Attenuation & 60 dB \\
 \hline
-\hline
 \end{tabular}
 \caption{Parameters for low-pass filter}
 \end{table}
+
 The frequency response is shown as follows:
 \begin{figure}[H]
 \centering
 \includegraphics[width=3in]{FR.png}
 \caption{Frequency Response}
 \end{figure}
-The result of passing raw sigal to this filter is as follows:
+The result of passing raw signals to this filter is as follows:
 \begin{figure}[H]
 \centering
 \includegraphics[width=3in]{LPF.png}
 \caption{Result of low-pass filter}
 \end{figure}
+
 Notably, we have implemented such low-pass filter both in Matlab and Python to meet our requirement.
 In Matlab, we directly use a build-in Butterworth filter but adjust the parameters to what we want.
 \begin{algorithm}
@@ -318,8 +374,9 @@ The pseudocode is as follows:
 	\STATE \qquad return y
 	\end{algorithmic}
 \end{algorithm}
+
 \subsubsection{Moving Average Filtering}
-What's more, Minor changes in various environmental factors such as user location, distance between routers and device, and objects in vecinity, can have an impact on the absolute Wi-Fi channel amplitude. The amplitude changes we are interested in for gesture recognition, however, are independent of these absolute valuse. To extract these changes and remove any bias from the absolute values, we filter the samples by calculating a windowed average of the channel samples (averaged over 300 ms, which is 300 points based on our sampling rate) from the low-pass filtered samples from the previous step. In other word, we perform noise reduction on the signal.
+Another serious problem is that minor changes in various environmental factors such as user location, distance between router and receiver, and objects in vicinity, can have an impact on the absolute WiFi channel amplitude. The amplitude changes we are interested in for gesture recognition, however, are independent of these absolute values. To extract these changes and remove bias from the absolute values, we filter the samples by calculating a windowed average of the channel samples (averaged over 300 ms, which is 300 points based on our sampling rate) from the low-pass filtered samples in the previous step.
 
 The following figure shows the result of the moving average filter.
 \begin{figure}[H]
@@ -384,10 +441,9 @@ In this section, we illustrate some figures of the result of preprocessing proce
 \includegraphics[width=3in]{PUSH4.png}
 \caption{Signal of PUSH}
 \end{figure}
-The above 4 figures came from 4 independent identical gesture ‘PUSH’. Clearly, we can see that these signals share a very high similarity in corresponding channels.
+The above 4 figures come from 4 independent identical gestures `PUSH'. Clearly, we can see that these signals share a very high similarity in corresponding channels.
 \subsection{Model Training}
 
-\section{Implementation} \label{section-implementation}
 
 \section{Evaluation} \label{section-evaluation}
 
@@ -414,7 +470,7 @@ In this project, we did various experiments by leveraging channel state informat
 We install the Intel 5300 NIC into a lenovo R400 laptop and use external antennas to receive signals better.
 We process the CSI and use SVM to train models to classify four different gestures and acquire an average accuracy of ??\%.
 In addition, we use CSI to localize tables in the lab and achieve an average accuracy of ??\%.
-It's true that there are still flaws and limits in our system. But We indeed started from scratch without instructions from the experienced and did plenty of experiments.
+It's true that there are still flaws and limits in our system. But We indeed started from scratch without instructions from the experienced and did plenty of experiments. It's pretty cool to try and learn new stuff as awesome as this from the very beginning. We learned a lot from it.
 
 \section*{Acknowledgment}
 We want to say thanks to Zhenyu Song, who let us know the CSI Tool and provide us with Intel 5300 NIC and laptop Lenovo R400. We also thank Prof.Jia for the WiFi router and instruction.
