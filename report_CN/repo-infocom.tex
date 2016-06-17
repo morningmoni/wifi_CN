@@ -69,6 +69,7 @@
 \usepackage{float}
 
 \usepackage[cmex10]{amsmath}
+\usepackage{algorithm}
 %\usepackage{breqn}
 
 % correct bad hyphenation here
@@ -269,6 +270,54 @@ The result of passing raw sigal to this filter is as follows:
 \caption{Result of low-pass filter}
 \end{figure}
 Notably, we have implemented such low-pass filter both in Matlab and Python to meet our requirement.
+In Matlab, we directly use a build-in Butterworth filter but adjust the parameters to what we want.
+\begin{algorithm}
+	\caption{Low-pass filter implement in MATLAB}
+	\begin{algorithmic}
+	\STATE function y=LowPassFilter(x) 
+	\STATE \qquad h = fdesign.lowpass(Fpass, Fstop, Apass, Astop, Fs) 
+	\STATE \qquad Hd = butter(h, 'MatchExactly', match) 
+	\STATE \qquad y = filter(Hd, x) 
+	\STATE end
+	\end{algorithmic}
+\end{algorithm}
+Matlab provides a more powerful and convenient method based on \emph{fdesign} to design filters comparing to the traditional way like \emph{fdatool}. As is illustrated above, only 3 lines of code can accomplish filter implementation.
+
+In Python, the implementation of such low-pass filter is slightly harder than it in Matlab. We use a open-source package for mathematics, science and engineering called \emph{Scipy}. In this package, it includes a toolbox called \emph{Scipy.signal} which contains some filtering functions, a limited set of filter design tools and a few B-spline interpolation algorithms for one- and two-dimensional data.
+
+In detail, the filter is implemented as a direct II transposed structure as follows:
+$$a[0]*y[n] = b[0]*x[n] + b[1]*x[n-1] + ... + b[nb]*x[n-nb]$$
+                        $$- a[1]*y[n-1] - ... - a[na]*y[n-na]$$
+using the following difference equations:
+\begin{algorithm}[H]
+y[m] = b[0]*x[m] + z[0,m-1] \\
+z[0,m] = b[1]*x[m] + z[1,m-1] - a[1]*y[m]\\
+...\\
+z[n-3,m] = b[n-2]*x[m] + z[n-2,m-1] - a[n-2]*y[m]\\
+z[n-2,m] = b[n-1]*x[m] - a[n-1]*y[m]\\
+\end{algorithm}
+where m is the output sample number and $n=max(len(a), len(b))$ is the model order.
+
+The ratianal transfer function describing this filter in the z-transform domain is:
+$$Y(z) = \frac{b[0]b[1]z^{-1}+...+b[nb]z^{-nb}}{a[0]+a[1]z^{-1}+...+a[na]z^{-na}}X(z)$$
+
+The pseudocode is as follows:
+\begin{algorithm}
+	\caption{Low-pass filter implement in Python}
+	\begin{algorithmic}
+	\STATE def LowPass(cutoff, fs, order=5) 
+	\STATE \qquad nyq = $0.5$ * fs
+	\STATE \qquad normal\_cutoff = cutoff / nyq
+	\STATE \qquad b, a = butter(order, normal\_cutoff, 
+	\STATE \qquad \qquad \qquad \qquad btype='low', analog=False)
+	\STATE \qquad return b, a
+
+	\STATE def LowPassFilter(x, cutoff, fs, order=5) 
+	\STATE \qquad b, a = LowPass(cutoff, fs, order=order)
+	\STATE \qquad y = lfilter(b, a, x)
+	\STATE \qquad return y
+	\end{algorithmic}
+\end{algorithm}
 \subsubsection{Moving Average Filtering}
 What's more, Minor changes in various environmental factors such as user location, distance between routers and device, and objects in vecinity, can have an impact on the absolute Wi-Fi channel amplitude. The amplitude changes we are interested in for gesture recognition, however, are independent of these absolute valuse. To extract these changes and remove any bias from the absolute values, we filter the samples by calculating a windowed average of the channel samples (averaged over 300 ms, which is 300 points based on our sampling rate) from the low-pass filtered samples from the previous step. In other word, we perform noise reduction on the signal.
 
@@ -281,6 +330,50 @@ The following figure shows the result of the moving average filter.
 From the above figure, we can clearly see the trend of the signal comparing to the raw data.
 
 Similar to the low-pass filter, we also implement two moving average filter on Matlab and Python.
+
+In MATLAB, we use a build-in filter which filters the input data, x, using a rational transfer function defined by the numerator and denominator coefficients b and a, respectively.
+
+Here we design
+\begin{algorithm}[H]
+b=ones(1, moving\_points)/moving\_points\\
+a=1
+\end{algorithm}
+In this case, the filter is identical to a moving average implementation.
+
+The pseudocode is as follows:
+\begin{algorithm}
+	\caption{Moving average filter implement in MATLAB}
+	\begin{algorithmic}
+	\STATE function y=MovingSmoothing(x) 
+	\STATE \qquad moving\_points = 301;
+	\STATE \qquad y = filter(ones(1, moving\_point)/moving\_point, 1, x);
+	\STATE end
+	\end{algorithmic}
+\end{algorithm}
+
+In Python, no such build-in function can be call to fulfil the filtering. Therefore, we implement it by ourselves, which has a complexity of $O(n)$.
+
+The pseudocode is as follows:
+\begin{algorithm}
+	\caption{Moving average filter implement in Python}
+	\begin{algorithmic}
+	\STATE def MeanMovingSmoothing(x, windowSize):
+    \STATE \qquad y = np.zeros(x.size)
+    \STATE \qquad for i in range(0, windowSize // 2):
+    \STATE \qquad \qquad y[i] = x[i]
+    \STATE \qquad for i in range((x.size - windowSize // 2), x.size):
+    \STATE \qquad \qquad y[i] = x[i]
+    \STATE \qquad summation = x[:windowSize].sum()
+    \STATE \qquad y[windowSize // 2] = summation / windowSize
+    \STATE \qquad for i in range(windowSize // 2 + 1
+    \STATE \qquad \qquad \qquad \qquad , x.size - windowSize // 2):
+    \STATE \qquad \qquad summation = summation - 
+    \STATE \qquad \qquad \qquad \qquad x[i - windowSize // 2 - 1] 
+    \STATE \qquad \qquad \qquad \qquad + x[i + windowSize // 2]
+    \STATE \qquad \qquad y[i] = summation / windowSize
+    \STATE \qquad return y
+	\end{algorithmic}
+\end{algorithm}
 \subsubsection{Some Example Result of Preprocessing}
 In this section, we illustrate some figures of the result of preprocessing procedure described as above.
 \begin{figure}[H]
