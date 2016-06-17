@@ -212,7 +212,7 @@ Let $M_T$ denote the number of transmit antennas, $M_R$ denote the number of rec
 \end{equation}
 In the equation above, the $M_R \times M_T$ dimensional channel matrix $H_i$ represents the Channel State Information (CSI) for the subcarrier $i$. Any two communicating WiFi devices estimate this channel matrix $H_i$ for every subcarrier by regularly transmitting a known preamble of OFDM symbols between each other \cite{ali2015keystroke}. For each Tx-Rx antenna pair, we can attain CSI values for $S_c$ = 30 OFDM subcarriers of the 20 MHz WiFi Channel by using CSI Tools and Intel 5300 network interface card. This leads to 30 matrices with dimensions $M_R \times M_T$ per CSI sample.
 \subsection{Related Work}
-There are a myriad of work for device-free gesture recognition. Some are based on Received Signal Strength Indicator (RSSI), some on Channel State Information (CSI).
+There are a myriad of work for device-free gesture recognition. Some are based on Received Signal Strength Indicator (RSSI), some on the detailed Channel State Information (CSI).
 
 \cite{pu2013whole} claims itself to be the first to do gesture recognition using wireless signals. 
 They presented a system named WiSee, which extracts minute Doppler shifts from wide-band OFDM transmissions to enable whole-home sensing and recognition of human gestures.
@@ -229,10 +229,21 @@ they also claim that they only need standard WiFi device, unlike \emph{Wisee} wh
 \subsection{Overview}
 In this section, we describe the whole process and flow of work. It consists of data collection, data processing and model training. For data collection, we introduce the hardware and software tools and our work above them. For data processing, we discuss signal filtering methods we implemented. For model training, we illustrate how we select the features and model.
 \subsection{Data Collection}
-We use a Lenovo R400 laptop equipped with an Intel 5300 network card as the receive side of wireless signals. We measure the CSI of received packets using the CSI Tool at a sampling rate of 1000 HZ. For each segment of data, the CSI is represented in 30 channels, as a figure below:
+
+CSI Tool \cite{halperin2011tool} is a toolkit released in 2011 and it is open-source on github. However, the tool relies on the authors' custom firmware image which only works on the Intel 5300 NIC.
+We hence installed an Intel 5300 network card into a Lenovo R400 laptop as the receive side of wireless signals and followed the instruction on the official website to install the CSI Tool.
 \begin{figure}[H]
+\begin{center}
+\includegraphics[width=1in]{NIC.png}
+\caption{Intel 5300 network interface card}
+\end{center}
+\end{figure}
+We measure the CSI of received packets using the CSI Tool at a sampling rate of 1000 HZ. For each segment of data, the CSI is represented in 30 channels, as a figure below:
+\begin{figure}[H]
+\begin{center}
 \includegraphics[width=3in]{Original.png}
 \caption{Raw signal in 30 channel of CSI}
+\end{center}
 \end{figure}
 From the above figure, we can see that the trend of the signal is obscure. Therefore, we need to preprocess the signals to attain signals with high SNR before we can do feature selection and model training.
 
@@ -330,6 +341,7 @@ The result of passing raw signals to this filter is as follows:
 Notably, we have implemented such low-pass filter both in Matlab and Python to meet our requirement.
 In Matlab, we directly use a build-in Butterworth filter but adjust the parameters to the needed ones.
 \begin{algorithm}
+	\centering
 	\caption{Low-pass filter implement in MATLAB}
 	\begin{algorithmic}
 	\STATE function y=LowPassFilter(x) 
@@ -361,6 +373,7 @@ $$Y(z) = \frac{b[0]b[1]z^{-1}+...+b[nb]z^{-nb}}{a[0]+a[1]z^{-1}+...+a[na]z^{-na}
 
 The pseudocode is as follows:
 \begin{algorithm}
+\centering
 	\caption{Low-pass filter implement in Python}
 	\begin{algorithmic}
 	\STATE def LowPass(cutoff, fs, order=5) 
@@ -401,6 +414,7 @@ In this case, the filter is identical to a moving average implementation.
 
 The pseudocode is as follows:
 \begin{algorithm}
+\centering
 	\caption{Moving average filter implement in MATLAB}
 	\begin{algorithmic}
 	\STATE function y=MovingSmoothing(x) 
@@ -414,6 +428,7 @@ In Python, no such build-in function can be call to fulfill the filtering. There
 
 The pseudocode is as follows:
 \begin{algorithm}
+\centering
 	\caption{Moving average filter implement in Python}
 	\begin{algorithmic}
 	\STATE def MeanMovingSmoothing(x, windowSize):
@@ -469,7 +484,7 @@ Future work directions are as follows. First, We need to collect more training d
 
 \section{conclusion} \label{section-conclusion}
 In this project, we did various experiments by leveraging channel state information (CSI) of WiFi signals using \emph{CSI Tool} and Intel 5300 NIC.
-We install the Intel 5300 NIC into a lenovo R400 laptop and use external antennas to receive signals better.
+We install the Intel 5300 NIC into a Lenovo R400 laptop and use external antennas to receive signals better.
 We process the CSI and use SVM to train models to classify four different gestures and acquire an average accuracy of ??\%.
 In addition, we use CSI to localize tables in the lab and achieve an average accuracy of ??\%.
 It's true that there are still flaws and limits in our system. But We indeed started from scratch without instructions from the experienced and did plenty of experiments. It's pretty cool to try and learn new stuff as awesome as this from the very beginning. We learned a lot from it.
