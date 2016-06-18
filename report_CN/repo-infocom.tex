@@ -77,8 +77,6 @@
 \hyphenation{op-tical net-works semi-conduc-tor}
 
 \begin{document}
-%
-% paper title
 % can use linebreaks \\ within to get better formatting as desired
 % \title{A Real-time Gesture Recognition System Using Wireless Signals}
 \title{Several Applications of Wireless Signals Using Channel State Information (CSI)}
@@ -153,7 +151,13 @@ XXX@sjtu.edu.cn}
 
 
 \begin{abstract}
-Wireless signals (e.g., WiFi) are almost everywhere nowadays. However, the research of wireless signals using channel state information (CSI) has just started. In this project, we try several applications by leveraging the channel state information (CSI). We implement an end-to-end system which can be used to control electronic devices (e.g., laptop) by gesture recognition. We also do experiments of indoor localization using CSI.  Our system leverages the WiFi signals using off-the-shelf network interface card (Intel 5300). It achieves an average accuracy of XXX \% for a classification of 4? typical gestures and XXX\% for localization of 5 different tables in the lab.
+Wireless signals (e.g., WiFi) are almost everywhere nowadays. However, the research of wireless signals using channel state information (CSI) has just started.
+In this project, we try several applications by leveraging the channel state information (CSI). 
+The first one is gesture recognition. We implement a demo system which can be used to control electronic devices (e.g., laptop) by gesture recognition. 
+We also do experiments of indoor localization using CSI. 
+Our system leverages the WiFi signals using off-the-shelf network interface card (Intel 5300) and CSI Tool.
+Different from previous systems that use explicit patterns of gestures to classify them, we extract the features and use support vector machine (SVM) to do the classification.
+In experiments, our system achieves an average accuracy of @JYT \% for a classification of 4? typical gestures and @JYT\% for localization of 5 different tables in the lab.
 
 \end{abstract}
 % IEEEtran.cls defaults to using nonbold math in the Abstract.
@@ -189,28 +193,30 @@ Researchers also developed ways to move the sensors onto the body so as to bolst
 
 Nowadays, wireless signals are almost everywhere. They are used for communication, remote control and so on. However, the research of doing gesture recognition by leveraging wireless signals just started in 2013. It partially results from the fact that there are plenty of challenges when it comes to the use of wireless signals. 
 Wireless signals are usually unstable and sensitive to environmental changes, there could be issues because of medium contention, multipath interference, noises caused by other objects and so on.
-collecting wireless signals and processing them is hence challenging.
+Collecting wireless signals and processing them is hence challenging.
+
 Recently proposed WiFi-based systems are based on analyzing the changes caused by human motion in the characteristics of the wireless signals, such as the received signal strength indicator (RSSI) or detailed channel state information (CSI).
 We consider this a new direction of research and hence did some experiments by leveraging the CSI.
 The CSI is helpful for many purposes, such as gesture recognition, indoor localization, keystroke recognition, human activity detection and so on.
-In this paper, we propose an end-to-end gesture recognition system and implement a demo using off-the-shelf network interface card (Intel 5300) and \emph{CSI Tools} \cite{halperin2011tool}. 
+In this paper, we propose a gesture recognition system and implement a demo using off-the-shelf network interface card (Intel 5300) and CSI Tools \cite{halperin2011tool}. 
 
-Different from previous methods, we use machine learning techniques to support classification of different gestures and the accuracy of the classification can hence increase as the users provide more samples.
-We also support user-defined gestures. All the users need is to perform a gesture several times and then the system can store the pattern and recognize the gesture afterwards.
+Different from previous methods that match the explicit patterns of gestures, we use support vector machine (SVM) to perform classification of different gestures and the accuracy of the classification can hence increase as the users provide more samples.
+We also support user-defined gestures. All the users need is to perform a gesture several times and then the system can store the patterns and recognize the gesture afterwards.
 In addition, We did experiment of indoor localization, or rather, classifying five tables in the lab.
-The results show that...
+The results show that @JYT
 
 The rest of this paper is organized as follows.  The background is introduced in Section \ref{section-background}. The system design is illustrated in Section \ref{section-design}. Section \ref{section-evaluation} demonstrates the evaluation of the system by multiple experiments. The discussion concerning limitations, division of work, and future work is presented in Section \ref{section-discussion}. Section \ref{section-conclusion} concludes the paper.
 
 \section{Background} \label{section-background}
 
 \subsection{Channel State Information (CSI)}
-Modern WiFi devices that support IEEE 802.11n/ac standard typically consist of multiple transmit and multiple receive antennas and thus support MIMO. Each MIMO channel between each transmit-receive (TX-RX) antenna pair of a transmitter and receiver comprises of multiple subcarriers. These WiFi devices continuously monitor the state of the wireless channel to effectively perform transmit power allocations and rate adaptations for each individual MIMO stream such that the available capacity of the wireless channel is maximally utilized \cite{halperin2010802}. These devices quantify the state of the channel in terms of CSI values. The CSI values essentially characterize the Channel Frequency Response (CFR) for each subcarrier between each transmit-receive (TX-RX) antenna pair.
+Modern WiFi devices that support IEEE 802.11n/ac standard typically consist of multiple transmit and multiple receive antennas and thus support MIMO. Each MIMO channel between each transmit-receive (TX-RX) antenna pair of a transmitter and receiver comprises of multiple subcarriers. These WiFi devices continuously monitor the state of the wireless channel to effectively perform transmit power allocations and rate adaptations for each individual MIMO stream such that the available capacity of the wireless channel is maximally utilized \cite{halperin2010802}. The devices quantify the state of the channel in terms of CSI values. The CSI values essentially characterize the Channel Frequency Response (CFR) for each subcarrier between each transmit-receive (TX-RX) antenna pair.
 Let $M_T$ denote the number of transmit antennas, $M_R$ denote the number of receive antennas and $S_c$ denote the number of OFDM subcarriers. Let $X_i$ and $Y_i$ represent the $M_T$ dimensional transmitted signal vector and $M_R$ dimensional received signal vector, respectively, for subcarrier i and let Ni represent an $M_R$ dimensional noise vector. An $M_R \times M_T$ MIMO system at any time instant can be represented by the following equation.
 \begin{equation}
 	Y_i = H_iX_i + N_i, i \in [1, S_c]
 \end{equation}
-In the equation above, the $M_R \times M_T$ dimensional channel matrix $H_i$ represents the Channel State Information (CSI) for the subcarrier $i$. Any two communicating WiFi devices estimate this channel matrix $H_i$ for every subcarrier by regularly transmitting a known preamble of OFDM symbols between each other \cite{ali2015keystroke}. For each Tx-Rx antenna pair, we can attain CSI values for $S_c$ = 30 OFDM subcarriers of the 20 MHz WiFi Channel by using CSI Tools and Intel 5300 network interface card. This leads to 30 matrices with dimensions $M_R \times M_T$ per CSI sample.
+In the equation above, the $M_R \times M_T$ dimensional channel matrix $H_i$ represents the Channel State Information (CSI) for the subcarrier $i$. Any two communicating WiFi devices estimate this channel matrix $H_i$ for every subcarrier by regularly transmitting a known preamble of OFDM symbols between each other \cite{ali2015keystroke}. For each $T_x-R_x$ antenna pair, we can attain CSI values for $S_c$ = 30 OFDM subcarriers of the 20 MHz WiFi Channel by using CSI Tool and Intel 5300 network interface card. This leads to 30 matrices with dimensions $M_R \times M_T$ per CSI sample.
+
 \subsection{Related Work}
 There are a myriad of work for device-free gesture recognition. Some are based on Received Signal Strength Indicator (RSSI), some on the detailed Channel State Information (CSI).
 
@@ -229,9 +235,10 @@ against signal profiles.
 \cite{ali2015keystroke} uses it to recognize keystroke. The idea is similar: while typing a certain key, the hands and fingers of a user move in a unique formation and direction and thus generate a unique pattern in the time-series of CSI values.
 Some even use CSI to do voice recognition. \cite{wang2014we} presented WiHear, which enables WiFi signals to ``hear'' people's talks without deploying any devices.
 Another direction is to use CSI to do indoor localization. The CSI can be used as fingerprints of various locations. Recent work can be found at \cite{hosen2015utilizing} \cite{kotaru2015spotfi} \cite{li2015passive} \cite{yang2015enhancing} \cite{jiang2014communicating} \cite{chen2014fine}.
+
 \section{System Design} \label{section-design}
 \subsection{Overview}
-In this section, we describe the whole process and flow of work. It consists of data collection, data processing and model training. For data collection, we introduce the hardware and software tools and our work above them. For data processing, we discuss signal filtering methods we implemented. For model training, we illustrate how we select the features and model.
+In this section, we describe the whole process and flow of work. It consists of three parts: data collection, data processing and model training. For data collection, we introduce the hardware and software tools and our work above them. For data processing, we discuss signal filtering methods we implemented. For model training, we illustrate how we select the features and model and train the model.
 \subsection{Data Collection}
 
 CSI Tool \cite{halperin2011tool} is a toolkit released in 2011 and it is open-source on github. However, the tool relies on the authors' custom firmware image which only works on the Intel 5300 NIC.
@@ -295,7 +302,7 @@ Which can display the SNR of three different antennas on subcarrier level.
 \begin{figure}[H]
 \centering
 \includegraphics[width=3in]{SNR.png}
-\caption{The SNR of three antennas}
+\caption{The SNR of three antennas in 30 subcarriers}
 \end{figure}
 
 To adjust the process above to our own purpose, we modified \textbf{log\_to\_file.c} to allow it to stop logging at certain time. We also used C to rewrite the functions in \textbf{read\_bf\_file.m} which were originally written in Matlab. MORE DETAIL HERE @JYT.
