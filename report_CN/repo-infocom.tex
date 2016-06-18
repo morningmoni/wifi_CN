@@ -485,7 +485,9 @@ Mainly, the procedure of PCA is as follows:
 	\item Project the source data onto the new basis
 \end{enumerate}
 
-In our case, we have the CSI represented in 30 channels, which may share latent correlation and dependence. Directly selecting features from the 30 channels may cause the more noise in the model. Therefore, we use PCA to reduce the dimension and also the noise.
+In our case, we have the CSI represented in 30 channels, which may share latent correlation and dependencies. Directly selecting features from the 30 channels may cause more noise in the model.
+On the other hand, reducing dimension can help lower the model complexity and hence improve the time efficiency.
+Therefore, we use PCA to reduce both the dimension and the noise.
 \subsection{Model Training}
 
 
