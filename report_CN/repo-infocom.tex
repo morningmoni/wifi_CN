@@ -492,24 +492,18 @@ On the other hand, reducing dimension can help lower the model complexity and he
 Therefore, we use PCA to reduce both the dimension and the noise.
 
 \subsection{Feature Selection}
-After processing, the data we collect is a time series signal, and we cannot use it as feature vector to de training because there are also noise or useless information in these signals and the length of the series may have different length. So we have to extract some useful and equivlent length feature from these signals.
+After processing, the data we collect are time-series signals, and we cannot use them as feature vectors to do training because there are also noises and useless information in these signals. In addition, although the lengths of different time series are identical, the actual durations may vary due to the delay of transmission. Therefore, we have to extract some useful features with equivalent length from these signals.
 
-From the figure of the signal processed:
-\begin{figure}[H]
-\centering
-\includegraphics[width=3in]{PUSH1.png}
-\caption{Signal Processed}
-\end{figure}
-Intuitively and Easily, we can find that the continuous increase and decrease are very obvious and strong feature. So at first we try to extract some features relevant to continuous increase and decrease. But From Figure \ref{inc-dec}, we can find that, even thought we have process and filtered data, there are also many vibrations. In these figure, red line means strength increasing while blue line means decreasing. We can find that there are many segments which look like a continuous increasing or decreasing segment, but actually they are not. So we have to do more filter first, or we cannot get the real and correct segment. What's more, because of the limitation of filtering, the first and last 150 points have not been filtered, so we can see that they vibrate vary much. And we need to throw them, or they will affect the feature selection process.
+From the figure of the processed signals, we can find that the continuous increases and decreases are very obvious and strong features. So at first we try to extract some features relevant to continuous increases and decreases. But From Figure \ref{inc-dec}, we can find that, even after we have processed and filtered data, there are still many vibrations. In the figure, red line means strength increasing while blue line means decreasing. We can find that there are many segments which look like a continuous increasing or decreasing segment, but actually they are not. So we have to do more filtering first, otherwise we cannot get the real and correct segment. What's more, because of the limitation of filtering, the first and last 150 points have not been filtered, so we can see that they vibrate heavily. That's why we need to throw them, or else they will degrade the process of feature selection.
 
 \begin{figure}[H]
 \label{inc-dec}
 \centering
 \includegraphics[width=3in]{fs1.pdf}
-\caption{Increase or Decrease}
+\caption{Increase and Decrease}
 \end{figure}
 
-At first, we threw the first and last 10 percent of datas. And then, in this filter process, we choosed a easy but useful method. We conbine each 50 points into 1 point. In this case, the signal becomes more smooth and has less vibration. Figure \ref{inc-dec-filtered} shows the curve of filtered data. Although there are also some little vibrations, but it's much easy for us to remove such little vibration.
+At first, we threw the first and last 10 percent of data. And then, in this filtering process, we chose a simple but useful method. We combine each 50 points into 1 point. In this case, the signal becomes more smooth and has less vibration. Figure \ref{inc-dec-filtered} shows the curve of filtered data. Although there are also some minor vibrations, it's now much easier for us to remove such little vibrations.
 
 
 \begin{figure}[H]
@@ -519,7 +513,7 @@ At first, we threw the first and last 10 percent of datas. And then, in this fil
 \caption{Increase or Decrease of Filtered Data}
 \end{figure}
 
-Now, we can start to extract features from the data filtered just now. First, there are some continuous increase and decrease, so maybe the amplitude of increase and decrease contains some useful information. We have count the maximal increase and decrease, which showed in Figure \ref{max-inc-dec}. From this figure, we can find that the gesture of `zoomout' can be distincted from other gestures totally. And most of `zoomin' are also different to other gestures. But for the remaining three types of gesture, we can not seperate them from others. 
+Now, we can start to extract features from the data filtered just now. First, there are some continuous increases and decreases, it suggests that the amplitude of increase and decrease contains some useful information. We have counted the maximal increase and decrease, which are showed in Figure \ref{max-inc-dec}. From this figure, we can find that the gesture of `zoomout' can be distinguished from other gestures totally. And most of `zoomin' are also different to other gestures.But for the remaining three types of gesture, we can not separate them from others. 
 
 \begin{figure}[H]
 \label{max-inc-dec}
@@ -555,12 +549,12 @@ After this, we also tried some other features:
 	\caption{Max over Mean to Min over Mean}
 	\end{figure}
 
-	\item mean and varance, showed in Figure \ref{min-var}
+	\item mean and variance, showed in Figure \ref{min-var}
 	\begin{figure}[H]
 	\label{min-var}
 	\centering
 	\includegraphics[width=3in]{fs7.pdf}
-	\caption{Mean to Varance}
+	\caption{Mean to Variance}
 	\end{figure}
 
 	\item number of increase, showed in Figure \ref{inc-count}
@@ -582,10 +576,10 @@ After this, we also tried some other features:
 \end{enumerate}
 
 \subsection{Model Training}
-From the figures showed above, we can find that many times we cannot seperate different gesture by linear classification. So finally we choosed SVM(Support Vector Machine) with Gaussian kernel.
+From the figures showed above, we can find that at most time we cannot separate different gesture by linear classification. So finally we choose SVM (Support Vector Machine) with Gaussian kernel to do the classification.
 
 \subsubsection{SVM}
-In machine learning, support vector machines (SVMs, also support vector networks[1]) are supervised learning models with associated learning algorithms that analyze data used for classification and regression analysis. Given a set of training examples, each marked for belonging to one of two categories, an SVM training algorithm builds a model that assigns new examples into one category or the other, making it a non-probabilistic binary linear classifier. An SVM model is a representation of the examples as points in space, mapped so that the examples of the separate categories are divided by a clear gap that is as wide as possible. New examples are then mapped into that same space and predicted to belong to a category based on which side of the gap they fall on.
+In machine learning, support vector machines (SVMs) are supervised learning models with associated learning algorithms that analyze data used for classification and regression analysis. Given a set of training examples, each marked for belonging to one of two categories, an SVM training algorithm builds a model that assigns new examples into one category or the other, making it a non-probabilistic binary linear classifier. An SVM model is a representation of the examples as points in space, mapped so that the examples of the separate categories are divided by a clear gap that is as wide as possible. New examples are then mapped into that same space and predicted to belong to a category based on which side of the gap they fall on.
 \begin{figure}[H]
 \centering
 \includegraphics[width=3in]{svm1.png}
@@ -603,18 +597,18 @@ The original maximum-margin hyperplane algorithm proposed by Vapnik in 1963 cons
 
 It is noteworthy that working in a higher-dimensional feature space increases the generalization error of support vector machines, although given enough samples the algorithm still performs well.\cite{NIPS2012-4500}
 \subsubsection{Cross Validation}
-In SVM, there are some hyper-parameters which need us to set manually. So we need to know which parameter can achieve the best performace. And Cross Validation is a pretty good way for us to get the best parameter setting.
+In SVM, there are some hyper-parameters which need us to set manually. So we need to know which parameters can achieve the best performance. Cross validation is a pretty good way for us to get the best parameter setting.
 
 Cross-validation, sometimes called rotation estimation, is a model validation technique for assessing how the results of a statistical analysis will generalize to an independent data set. It is mainly used in settings where the goal is prediction, and one wants to estimate how accurately a predictive model will perform in practice. In a prediction problem, a model is usually given a dataset of known data on which training is run (training dataset), and a dataset of unknown data (or first seen data) against which the model is tested (testing dataset). The goal of cross validation is to define a dataset to ``test'' the model in the training phase (i.e., the validation dataset), in order to limit problems like overfitting, give an insight on how the model will generalize to an independent dataset (i.e., an unknown dataset, for instance from a real problem), etc.
-\subsubsection{Model Persistance}
+\subsubsection{Model Persistence}
 The training process is a little slow. So if we want to predict the gesture in real-time, we cannot retrain the model once again. It means that we need to train out model first and then persist it as files so that when we need to use it, what should we do is just loading it and using it to predict.
 
 \subsubsection{Realization}
-To realize the training and persistance process, we choose to use `python' and it's package `sklearn'. We didn't realize it by ourselves because this part is not the focus of this course project, and the mature package has better performance and less bug than ourselves realization. 
+To realize the training and persistence process, we choose to use `python' and its package `sklearn'. We didn't realize it by ourselves because this part is not the focus of this course project, and the mature package apparently has better performance and fewer bugs than our realization. 
 \section{Evaluation} \label{section-evaluation}
-We have collected datas for three times. In each time, we set AP and computer to be different place, because we want to know that whether our algorithm will be sensitive to the location of AP and distance between AP and computer.
+We have collected data for three times. In each time, we set AP and computer to be at different places, because we want to know that whether our algorithm will be sensitive to the location of AP and distance between AP and computer.
 
-For these three different dataset, we split each one to be two parts, training set and test set. First we train our model by training set. In this process, we use cross validation to gain the best performance. And then we evaluate this model on test set. Table \ref{result} shows the accuracy of cross validation and predicting on test set.
+For these three different datasets, we split each one to be two parts, training set and test set. First we train our model by training set. In this process, we use cross validation to gain the best performance. And then we evaluate this model on test set. Table \ref{result} shows the accuracy of cross validation and predicting on test set.
 
 \begin{table}[]
 \centering
@@ -631,7 +625,8 @@ predicting test set & 0.53 & 0.88 & 0.88 \\
 \end{tabular}
 \end{table}
 
-But if we mix these three datasets and repeat this process, The accuracy of cross validation and predicting test set dicrese to 0.42 and 0.34, which means that the signal we collect is very sensitive to the position of AP and distance between AP and computer. So it cannot be used in real word, because we cannot promise the position of AP and computer are same for each detection. And how to eliminate the influence of the position is our next direction. This problem is very hard to solve, but we will try our best to find a method to solve it.
+However, if we mix these three datasets and repeat this process, The accuracy of cross validation and predicting test set decreases to 0.42 and 0.34, respectively, which means that the signal we collect is very sensitive to the position of AP and distance between AP and computer. 
+Therefore, to use it in real world, we have to train different models at different environments, because we cannot promise the positions of AP and computer are the same for each detection. How to eliminate the influence of the position is our next direction. This problem is very hard to solve, but we will try our best to find a method to solve it.
 \section{discussion} \label{section-discussion}
 
 In this section, we discuss what we learned from this project, in which division of work and future work are also covered.
