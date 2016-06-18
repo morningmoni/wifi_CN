@@ -166,7 +166,7 @@ Wireless signals (e.g., WiFi) are almost everywhere nowadays. However, the resea
 % no keywords
 
 \begin{keywords}
-Gesture Recognition, Indoor Localization, Wireless Signals, Signal Processing, Classification
+Channel State Information(CSI), Gesture Recognition, Indoor Localization, Wireless Signals, Signal Processing, Classification
 \end{keywords}
 
 
@@ -216,7 +216,7 @@ There are a myriad of work for device-free gesture recognition. Some are based o
 
 \cite{pu2013whole} claims itself to be the first to do gesture recognition using wireless signals. 
 They presented a system named WiSee, which extracts minute Doppler shifts from wide-band OFDM transmissions to enable whole-home sensing and recognition of human gestures.
-There is another work \emph{Allsee} \cite{kellogg2014bringing} which leverages wireless signals furthermore and applies the method into RFID tags and power-harvesting sensors.
+There is another work \emph{Allsee} \cite{kellogg2014bringing} which leverages wireless signals furthermore and applies the method into RFID tags and power-harvesting sensors.  AllSee consumes three to four orders of magnitude lower power than state-of-the-art systems and can enable always-on gesture recognition for smartphones and tablet.
 
 Another category is RSSI-based gesture recognition, which leverages the signal strength changes caused by human motion.
 However, due to the low resolution of RSSI values provided by commercial devices, the performance of these kinds of methods is usually considered relatively low.
@@ -224,7 +224,11 @@ For instance, the accuracy is 56\% over 7 different gestures in \cite{sigg2014te
 Nevertheless, \cite{abdelnasser2015wigest} claims that they achieve 96\% when evaluating the system using a multi-media player application.
 they also claim that they only need standard WiFi device, unlike \emph{Wisee} which uses USRP in their experiment.
 
-
+There are also other applications based on CSI. \cite{wang2015understanding} \cite{wang2014eyes} \cite{wang2015robust} use it to do human activity recognition. They examine channel features and can uniquely identify both in-place activities and walking movements across a home by comparing them
+against signal profiles.
+\cite{ali2015keystroke} uses it to recognize keystroke. The idea is similar: while typing a certain key, the hands and fingers of a user move in a unique formation and direction and thus generate a unique pattern in the time-series of CSI values.
+Some even use CSI to do voice recognition. \cite{wang2014we} presented WiHear, which enables WiFi signals to ``hear'' people's talks without deploying any devices.
+Another direction is to use CSI to do indoor localization. The CSI can be used as fingerprints of various locations. Recent work can be found at \cite{hosen2015utilizing} \cite{kotaru2015spotfi} \cite{li2015passive} \cite{yang2015enhancing} \cite{jiang2014communicating} \cite{chen2014fine}.
 \section{System Design} \label{section-design}
 \subsection{Overview}
 In this section, we describe the whole process and flow of work. It consists of data collection, data processing and model training. For data collection, we introduce the hardware and software tools and our work above them. For data processing, we discuss signal filtering methods we implemented. For model training, we illustrate how we select the features and model.
@@ -469,6 +473,8 @@ The above 4 figures come from 4 independent identical gestures `PUSH'. Clearly, 
 
 In this section, we discuss what we learned from this project, in which division of work and future work are also covered.
 
+\subsection{What we learned}
+@SZF
 \subsection{Division of Work}
 Yuning Mao is the team leader. He took great efforts to the research and survey of papers in which CSI is used. He installed the hardware and set up the environment of CSI tool in Ubuntu 12.04. He tried things first and assigned tasks to the team members after having a basic understanding. He modified the program in CSI tool which was originally used to save CSI into binary file into a program which was then used to do gesture recognition. He is also responsible for most experiments and batch files.
 
@@ -477,10 +483,13 @@ Yuting Jia is in charge of the model, including feature selection, model selecti
 Zhenfeng Shi did the work of signal processing. He tried multiple methods of signal filtering and implemented them in both \emph{matlab} and \emph{python}.
 
 \subsection{Limitations and Future Work}
-Currently our system depends on the environment heavily and is sensitive to noise. In addition, we have to train different parameters of model in different scenarios. We think that there are a couple of reasons accounting for that. 
+Currently our system depends on the environment heavily and is sensitive to noise. Due to this fact, we have to train different parameters of model in different scenarios. We think that there are a couple of reasons accounting for that. 
 First, we couldn't find a quite and stable environment for data collection. The training data are hence with great noise, which is apparently undesirable. 
-Second, the samples we collected are far from enough compared to the researchers who have been working on this field for years. For instance, in \cite{ali2015keystroke}, they obtained $10 persons \times 30samples/person/classes \times 37classes = 11100$ samples. We only have around one percent of them in each experiment. After all we had to collect data after establishing the whole system, and there was only one week or so and the exams were around the corner...
-Future work directions are as follows. First, We need to collect more training data in a relatively stable environment. Second, we should try more advanced filtering methods via which we can hopefully eliminate random noise. Furthermore, we can try different models and different applications such as typing recognition and voice recognition, which are more challenging and exciting in the meantime!
+Second, the samples we collected are far from enough compared to the researchers who have been working on this field for years. For instance, in \cite{ali2015keystroke}, they obtained $10 persons \times 30samples/person/classes \times 37classes = 11100$ samples. We only have around one percent of them in each experiment. After all we had to collect data after establishing the whole system, and there was only one week or so and the exams were around the corner. In addition, the devices we use are old, which may cause unexpected consequences like heavy noise.
+
+Our system also has low response since currently we don't detect the starting point and ending point of a gesture due to the limitation of time. A possible solution is to use preamble as in \cite{pu2013whole}. That is, to let user do a certain gesture first whenever he wants to use the system. The advantages of this method are that it's relatively simple to implement and can also serve as a password of a specific user. The disadvantages, however, are also apparent: it's obviously not user-friendly.
+
+Future work directions are as follows. There are a mass of things we can(should) do if we have more time. First, We need to collect more training data in a relatively stable environment so that the quality is high enough. Second, we should try more advanced filtering methods via which we can hopefully eliminate random noise. Third, we should recognize the starting point and ending point of gestures. Furthermore, we can try different models and different applications such as keystroke recognition and voice recognition, which are more challenging and exciting in the meantime!
 
 \section{conclusion} \label{section-conclusion}
 In this project, we did various experiments by leveraging channel state information (CSI) of WiFi signals using \emph{CSI Tool} and Intel 5300 NIC.
@@ -490,7 +499,7 @@ In addition, we use CSI to localize tables in the lab and achieve an average acc
 It's true that there are still flaws and limits in our system. But We indeed started from scratch without instructions from the experienced and did plenty of experiments. It's pretty cool to try and learn new stuff as awesome as this from the very beginning. We learned a lot from it.
 
 \section*{Acknowledgment}
-We want to say thanks to Zhenyu Song, who let us know the CSI Tool and provide us with Intel 5300 NIC and laptop Lenovo R400. We also thank Prof.Jia for the WiFi router and instruction.
+We want to say thanks to Zhenyu Song, who let us know the CSI Tool and provide us with Intel 5300 NIC and laptop Lenovo R400. We thank Prof.Jia for the WiFi router and instruction. We also thank TA.Zhang's help.
 
 \bibliographystyle{IEEEtran}
 \bibliography{IEEEabrv,repo}
