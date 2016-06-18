@@ -497,11 +497,11 @@ In our case, we have the CSI represented in 30 channels, which may share latent 
 In this section, we discuss what we learned from this project, in which division of work and future work are also covered.
 
 \subsection{What we learned}
-As has mentions in the introduction, the exponential growth in mobile technologies has reignited the investigation of novel human-computer interfaces (HCI) through which users can control various applications. The ubiquity of Wi-Fi brings the Wi-Fi gesture recognition of great convinience and possibility. Such gesture recognition system requires no additional energy or devices but the computer itself.
+As has mentioned in the introduction, the exponential growth in mobile technologies has reignited the investigation of novel human-computer interfaces (HCI) through which users can control various applications. The ubiquity of WiFi provides the WiFi based gesture recognition with great convenience and possibility. Such gesture recognition system requires no additional energy or devices but the standard devices themselves.
 
-In this project, we investigated the plausibility of implementing such gesture recognition system. We found that the wireless signal is far more unstable and noisy than we though earlier. Although by adding three antennae on the receiver end we managed to reduce some of the noise, it still cannot reach the accuracy we demand. Our experiment is highly sensible to the environment especially for the moving objects. While we are collecting and labeling data, the motion of other people in the lab may bring greate noise to our data.
+In this project, we investigated the feasibility of implementing such gesture recognition system. We found that the wireless signal is far more unstable and noisy than we thought earlier. Although by adding three antennas on the receiver end we managed to reduce some of the noise, it still cannot reach the accuracy we demand in various environment. Our experiment is highly sensible to the environment especially for the moving objects. While we are collecting and labeling data, the motion of other people in the lab may bring noise to our data.
 
-In general, we also have learned lots of stuff in this project, like how Wi-Fi system is working and the difference of various network card. We also implements multiple signal processing, dimension reduction, feature selection and classification models. It gave us a valuable research experience in the lab and an opportunity to verify what we have learn from the book.
+In general, we also have learned lots of stuff in this project, like how WiFi system is working and the difference of different network cards. We also implemented multiple signal processing methods, dimension reduction, feature selection and classification models. It gave us a valuable research experience in the lab and an opportunity to verify what we have learn from the book.
 
 \subsection{Division of Work}
 Yuning Mao is the team leader. He took great efforts to the research and survey of papers in which CSI is used. He installed the hardware and set up the environment of CSI tool in Ubuntu 12.04. He tried things first and assigned tasks to the team members after having a basic understanding. He modified the program in CSI tool which was originally used to save CSI into binary file into a program which was then used to do gesture recognition. He is also responsible for most experiments and batch files.
@@ -523,8 +523,8 @@ Future work directions are as follows. There are a mass of things we can(should)
 \section{conclusion} \label{section-conclusion}
 In this project, we did various experiments by leveraging channel state information (CSI) of WiFi signals using \emph{CSI Tool} and Intel 5300 NIC.
 We install the Intel 5300 NIC into a Lenovo R400 laptop and use external antennas to receive signals better.
-We process the CSI and use SVM to train models to classify four different gestures and acquire an average accuracy of ??\%.
-In addition, we use CSI to localize tables in the lab and achieve an average accuracy of ??\%.
+We process the CSI and use SVM to train models to classify four different gestures and acquire an average accuracy of @JYT\%.
+In addition, we use CSI to localize tables in the lab and achieve an average accuracy of @JYT\%.
 It's true that there are still flaws and limits in our system. But We indeed started from scratch without instructions from the experienced and did plenty of experiments. It's pretty cool to try and learn new stuff as awesome as this from the very beginning. We learned a lot from it.
 
 \section*{Acknowledgment}
